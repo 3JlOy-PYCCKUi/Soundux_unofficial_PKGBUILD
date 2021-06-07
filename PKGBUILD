@@ -1,8 +1,20 @@
 # Maintainer: Nico <d3sox at protonmail dot com>
+
+##
+## The following variables can be customized at build time. Use env or export to change at your wish
+##   this option enable latest ui and translations
+##
+##   Example: export _latest_ui=y
+##
+
+if [ -z ${_latest_ui+x} ]; then
+  _latest_ui=n
+fi
+
 pkgname=soundux-git
 _pkgname=soundux
 pkgver=r1297.6e9351a
-pkgrel=1
+pkgrel=2
 epoch=1
 pkgdesc="A cross-platform soundboard - unstable development version"
 arch=('any')
@@ -78,6 +90,14 @@ build() {
   git config submodule.lib/json.url "${srcdir}/${_pkgname}-json"
   cd "${srcdir}/${_pkgname}"
   git submodule update --init --recursive
+  
+  ## latest ui
+  if [ "$_latest_ui" = "y" ]; then
+    rm -rf "${srcdir}/${_pkgname}/src/ui/impl/webview/lib/soundux-ui"
+    git clone -b build ${srcdir}/../${_pkgname}-soundux-ui "${srcdir}/${_pkgname}/src/ui/impl/webview/lib/soundux-ui"
+    rm -rf "${srcdir}/${_pkgname}/src/ui/impl/webview/lib/soundux-ui/.git"
+  fi
+
   mkdir -p build
   cd build
   cmake -GNinja -DCMAKE_BUILD_TYPE=Release ..
